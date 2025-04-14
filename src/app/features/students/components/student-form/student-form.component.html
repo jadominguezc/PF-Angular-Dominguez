@@ -1,0 +1,65 @@
+<h2 mat-dialog-title appTitleSize>{{ isEditing ? 'Editar Alumno' : 'Nuevo Alumno' }}</h2>
+<mat-dialog-content>
+  <form [formGroup]="studentForm" (ngSubmit)="onSubmit()">
+    <mat-form-field appearance="fill">
+      <mat-label>Nombre</mat-label>
+      <input matInput formControlName="firstName" required>
+      <mat-error *ngIf="studentForm.get('firstName')?.hasError('required') && (studentForm.get('firstName')?.touched || submitted)">
+        El nombre es obligatorio
+      </mat-error>
+      <mat-error *ngIf="studentForm.get('firstName')?.hasError('minlength') && (studentForm.get('firstName')?.touched || submitted)">
+        Mínimo 3 caracteres
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Apellido</mat-label>
+      <input matInput formControlName="lastName" required>
+      <mat-error *ngIf="studentForm.get('lastName')?.hasError('required') && (studentForm.get('lastName')?.touched || submitted)">
+        El apellido es obligatorio
+      </mat-error>
+      <mat-error *ngIf="studentForm.get('lastName')?.hasError('minlength') && (studentForm.get('lastName')?.touched || submitted)">
+        Mínimo 3 caracteres
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Email</mat-label>
+      <input matInput formControlName="email" type="email" required>
+      <mat-error *ngIf="studentForm.get('email')?.hasError('required') && (studentForm.get('email')?.touched || submitted)">
+        El email es obligatorio
+      </mat-error>
+      <mat-error *ngIf="studentForm.get('email')?.hasError('email') && (studentForm.get('email')?.touched || submitted)">
+        Formato de email inválido
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>RUT</mat-label>
+      <input matInput formControlName="rut" placeholder="12345678-9" required>
+      <mat-error *ngIf="studentForm.get('rut')?.hasError('required') && (studentForm.get('rut')?.touched || submitted)">
+        El RUT es obligatorio
+      </mat-error>
+      <mat-error *ngIf="studentForm.get('rut')?.hasError('pattern') && (studentForm.get('rut')?.touched || submitted)">
+        Formato: 12345678-9 (7 u 8 dígitos, guion, dígito o K)
+      </mat-error>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Carrera</mat-label>
+      <mat-select formControlName="career" required>
+        <mat-option *ngFor="let career of careers" [value]="career">
+          {{ career }}
+        </mat-option>
+      </mat-select>
+      <mat-error *ngIf="studentForm.get('career')?.hasError('required') && (studentForm.get('career')?.touched || submitted)">
+        La carrera es obligatoria
+      </mat-error>
+    </mat-form-field>
+
+    <mat-dialog-actions>
+      <button mat-button type="button" (click)="onCancel()">Cancelar</button>
+      <button mat-raised-button color="primary" type="submit" [disabled]="studentForm.invalid">Guardar</button>
+    </mat-dialog-actions>
+  </form>
+</mat-dialog-content>

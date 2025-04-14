@@ -1,0 +1,7 @@
+mat-nav-list {
+  padding-top: 20px;
+}
+
+mat-nav-list a[mat-list-item]:hover {
+  background-color: rgb(188, 212, 247);
+}

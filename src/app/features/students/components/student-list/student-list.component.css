@@ -1,0 +1,33 @@
+.table-container {
+  padding: 20px;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 20px;
+}
+
+table {
+  width: 100%;
+  table-layout: auto;
+}
+
+table th,
+table td {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+td[mat-cell] button {
+  margin-right: 8px;
+}
+
+th[mat-header-cell] {
+  background-color: rgb(63, 81, 181);
+  color: white;
+}

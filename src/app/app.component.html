@@ -1,0 +1,11 @@
+<div class="layout">
+  <app-toolbar (toggleSidenav)="toggleSidenav()"></app-toolbar>
+  <mat-sidenav-container>
+    <mat-sidenav #sidenav mode="side" [opened]="isSidenavOpen">
+      <app-navbar></app-navbar>
+    </mat-sidenav>
+    <mat-sidenav-content>
+      <app-students></app-students>
+    </mat-sidenav-content>
+  </mat-sidenav-container>
+</div>
