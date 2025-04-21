@@ -18,7 +18,7 @@ export class StudentFormComponent {
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<StudentFormComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: { students: Student[], studentToEdit?: Student }
+    @Inject(MAT_DIALOG_DATA) public data: { studentToEdit?: Student }
   ) {
     this.studentForm = this.fb.group({
       firstName: ['', [Validators.required, Validators.minLength(3)]],
@@ -51,9 +51,9 @@ export class StudentFormComponent {
 
     if (this.studentForm.valid) {
       const studentData = this.studentForm.value;
-      const newStudent: Student = this.isEditing
+      const newStudent: Student | Omit<Student, 'id'> = this.isEditing
         ? { ...this.data.studentToEdit, ...studentData }
-        : { ...studentData, id: this.generateUniqueId() };
+        : studentData; // No generamos el ID aquí, el servicio lo hará
       console.log('Enviando estudiante:', newStudent);
       this.dialogRef.close(newStudent);
     } else {
@@ -69,10 +69,5 @@ export class StudentFormComponent {
   onCancel(): void {
     console.log('onCancel ejecutado');
     this.dialogRef.close();
-  }
-
-  private generateUniqueId(): number {
-    const existingIds = this.data.students.map(s => s.id);
-    return Math.max(...existingIds, 0) + 1;
   }
 }

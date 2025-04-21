@@ -1,5 +1,5 @@
 <app-student-list 
-  [students]="students" 
+  [students]="(students$ | async)!" 
   (openFormEvent)="openForm()" 
   (editStudentEvent)="editStudent($event)" 
   (deleteStudentEvent)="deleteStudent($event)">

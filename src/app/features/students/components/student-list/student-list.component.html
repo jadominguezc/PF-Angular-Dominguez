@@ -3,6 +3,13 @@
     Lista de Alumnos
     <button mat-raised-button color="primary" (click)="openForm()">+Nuevo Alumno</button>
   </div>
+
+  <!-- Campo de búsqueda -->
+  <mat-form-field appearance="fill" class="search-field">
+    <mat-label>Buscar por nombre</mat-label>
+    <input matInput [formControl]="searchControl" placeholder="Ej. Ana Torres">
+  </mat-form-field>
+
   <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
     <ng-container matColumnDef="id">
       <th mat-header-cell *matHeaderCellDef appTitleSize>ID</th>
