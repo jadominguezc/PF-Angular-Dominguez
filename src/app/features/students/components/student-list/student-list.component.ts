@@ -1,8 +1,10 @@
 import { Component, Input, Output, EventEmitter, OnChanges, SimpleChanges, OnDestroy } from '@angular/core';
-import { Student } from 'app/models/student.model';
+import { Student } from 'app/core/models/student.model';
 import { MatTableDataSource } from '@angular/material/table';
 import { FormControl } from '@angular/forms';
 import { Observable, Subject, combineLatest, of, startWith, map, takeUntil } from 'rxjs';
+import { MatDialog } from '@angular/material/dialog';
+import { ConfirmationDialogComponent } from 'app/shared/components/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-student-list',
@@ -16,12 +18,12 @@ export class StudentListComponent implements OnChanges, OnDestroy {
   @Output() editStudentEvent = new EventEmitter<Student>();
   @Output() deleteStudentEvent = new EventEmitter<Student>();
   displayedColumns: string[] = ['id', 'fullNameColumn', 'email', 'rut', 'career', 'actions'];
-  dataSource = new MatTableDataSource<Student>([]);
-  searchControl = new FormControl(''); // Control para el campo de búsqueda
-  filteredStudents$!: Observable<Student[]>; // Observable para los estudiantes filtrados
-  private destroy$ = new Subject<void>(); // Para manejar la destrucción
+  studentTableDataSource = new MatTableDataSource<Student>([]); // Renombrado
+  searchControl = new FormControl('');
+  filteredStudents$!: Observable<Student[]>;
+  private destroy$ = new Subject<void>(); 
 
-  constructor() {
+  constructor(private dialog: MatDialog) {
     this.setupFilter();
   }
 
@@ -32,16 +34,15 @@ export class StudentListComponent implements OnChanges, OnDestroy {
   }
 
   private setupFilter(): void {
-    const students$ = of(this.students); // Convertir el arreglo de estudiantes en un observable
+    const students$ = of(this.students);
     const searchTerm$ = this.searchControl.valueChanges.pipe(
-      startWith('') // Iniciar con una cadena vacía
+      startWith('')
     );
 
-    // Combinar los estudiantes y el término de búsqueda para filtrar reactivamente
     this.filteredStudents$ = combineLatest([students$, searchTerm$]).pipe(
       map(([students, searchTerm]) => {
         if (!searchTerm) {
-          return students; // Si no hay término de búsqueda, devolver todos los estudiantes
+          return students;
         }
         const searchLower = searchTerm.toLowerCase();
         return students.filter(student => {
@@ -52,9 +53,8 @@ export class StudentListComponent implements OnChanges, OnDestroy {
       takeUntil(this.destroy$)
     );
 
-    // Suscribirse al observable filtrado para actualizar el dataSource
     this.filteredStudents$.subscribe(filteredStudents => {
-      this.dataSource.data = filteredStudents;
+      this.studentTableDataSource.data = filteredStudents; // Actualizado
       console.log('DataSource actualizado con estudiantes filtrados:', filteredStudents);
     });
   }
@@ -69,8 +69,23 @@ export class StudentListComponent implements OnChanges, OnDestroy {
   }
 
   deleteStudent(student: Student): void {
-    this.deleteStudentEvent.emit(student);
-    console.log('Eliminar estudiante:', student);
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '350px',
+      data: {},
+      ariaLabel: 'Confirmar eliminación de estudiante',
+      hasBackdrop: true,
+      disableClose: false,
+      autoFocus: true
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result === true) {
+        this.deleteStudentEvent.emit(student);
+        console.log('Eliminar estudiante:', student);
+      } else {
+        console.log('Eliminación cancelada para:', student);
+      }
+    });
   }
 
   getFullName(student: Student): string {

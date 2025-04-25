@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core';
-import { Student } from 'app/models/student.model';
+import { Student } from 'app/core/models/student.model'; // Nueva ruta
 
 @Pipe({
   name: 'fullName',

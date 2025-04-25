@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Student } from 'app/models/student.model';
+import { Student } from 'app/core/models/student.model'; // Nueva ruta
 
 @Component({
   selector: 'app-student-form',
@@ -53,7 +53,7 @@ export class StudentFormComponent {
       const studentData = this.studentForm.value;
       const newStudent: Student | Omit<Student, 'id'> = this.isEditing
         ? { ...this.data.studentToEdit, ...studentData }
-        : studentData; // No generamos el ID aquí, el servicio lo hará
+        : studentData;
       console.log('Enviando estudiante:', newStudent);
       this.dialogRef.close(newStudent);
     } else {

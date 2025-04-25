@@ -22,6 +22,7 @@ import { StudentListComponent } from './features/students/components/student-lis
 import { StudentFormComponent } from './features/students/components/student-form/student-form.component';
 import { FullNamePipe } from './shared/pipes/full-name.pipe';
 import { TitleSizeDirective } from './shared/directives/title-size.directive';
+import { ConfirmationDialogComponent } from './shared/components/confirmation-dialog/confirmation-dialog.component'; // Nuevo componente
 
 @NgModule({
   declarations: [
@@ -32,7 +33,8 @@ import { TitleSizeDirective } from './shared/directives/title-size.directive';
     StudentListComponent,
     StudentFormComponent,
     FullNamePipe,
-    TitleSizeDirective
+    TitleSizeDirective,
+    ConfirmationDialogComponent // Declarar el nuevo componente
   ],
   imports: [
     BrowserModule,

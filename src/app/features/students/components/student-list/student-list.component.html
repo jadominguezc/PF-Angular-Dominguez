@@ -10,7 +10,7 @@
     <input matInput [formControl]="searchControl" placeholder="Ej. Ana Torres">
   </mat-form-field>
 
-  <table mat-table [dataSource]="dataSource" class="mat-elevation-z8">
+  <table mat-table [dataSource]="studentTableDataSource" class="mat-elevation-z8"> <!-- Actualizado -->
     <ng-container matColumnDef="id">
       <th mat-header-cell *matHeaderCellDef appTitleSize>ID</th>
       <td mat-cell *matCellDef="let student">{{ student.id }}</td>

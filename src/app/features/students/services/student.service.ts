@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Observable, of } from 'rxjs';
-import { Student } from 'app/models/student.model';
+import { Student } from 'app/core/models/student.model';
 
 @Injectable({
   providedIn: 'root'
@@ -21,13 +21,13 @@ export class StudentService {
     return of(this.students);
   }
 
-  // Nuevo método para generar un ID único
+  
   private generateUniqueId(): number {
     if (this.students.length === 0) {
-      return 1; // Si no hay estudiantes, el primer ID será 1
+      return 1;
     }
     const lastId = Math.max(...this.students.map(student => student.id));
-    return lastId + 1; // Retorna el último ID + 1
+    return lastId + 1;
   }
 
   addStudent(student: Omit<Student, 'id'>): Student {
