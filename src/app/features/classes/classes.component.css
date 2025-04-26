@@ -1,0 +1,19 @@
+h2 {
+    margin: 20px 0;
+  }
+  
+  .search-container {
+    margin-bottom: 20px;
+  }
+  
+  .table-container {
+    overflow-x: auto;
+  }
+  
+  table {
+    width: 100%;
+  }
+  
+  td.mat-cell {
+    padding: 8px;
+  }

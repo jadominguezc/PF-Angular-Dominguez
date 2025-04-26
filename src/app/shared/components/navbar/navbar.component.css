@@ -5,3 +5,8 @@ mat-nav-list {
 mat-nav-list a[mat-list-item]:hover {
   background-color: rgb(188, 212, 247);
 }
+
+mat-nav-list a.active {
+  background-color: rgb(63, 81, 181);
+  color: white;
+}

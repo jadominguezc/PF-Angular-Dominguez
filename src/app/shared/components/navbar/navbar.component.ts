@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, Output, EventEmitter } from '@angular/core';
 
 @Component({
   selector: 'app-navbar',
@@ -6,4 +6,11 @@ import { Component } from '@angular/core';
   styleUrls: ['./navbar.component.css'],
   standalone: false
 })
-export class NavbarComponent {}
+export class NavbarComponent {
+  @Output() closeSidenavEvent = new EventEmitter<void>();
+
+  closeSidenav(event: Event): void {
+    event.preventDefault(); // Elimina esta línea si está presente
+    this.closeSidenavEvent.emit();
+  }
+}

@@ -16,4 +16,10 @@ export class AppComponent {
     this.sidenav.toggle();
     console.log('Sidenav toggled:', this.isSidenavOpen);
   }
+
+  closeSidenav(): void {
+    this.isSidenavOpen = false;
+    this.sidenav.close();
+    console.log('Sidenav closed');
+  }
 }
