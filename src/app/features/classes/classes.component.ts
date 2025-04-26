@@ -7,10 +7,9 @@ import { Component } from '@angular/core';
   standalone: false
 })
 export class ClassesComponent {
-  // Definimos las columnas que se mostrarán en la tabla
   displayedColumns: string[] = ['className', 'day', 'schedule', 'professor'];
 
-  // Datos de las clases (simulados por ahora)
+  // Datos de las clases que se mostrarán en la tabla
   classes = [
     { className: 'Matemáticas I', day: 'Lunes', schedule: '10:00-12:00', professor: 'Prof. Mirna García' },
     { className: 'Programación I', day: 'Miércoles', schedule: '14:00-16:00', professor: 'Ing. José López' },
@@ -23,10 +22,9 @@ export class ClassesComponent {
     { className: 'Educación Física I', day: 'Viernes', schedule: '12:00-14:00', professor: 'Prof. Sofía Morales' }
   ];
 
-  filteredClasses = [...this.classes]; // Lista filtrada para la tabla
-  searchTerm = ''; // Término de búsqueda
+  filteredClasses = [...this.classes]; 
+  searchTerm = ''; 
 
-  // Método para filtrar las clases
   filterClasses(): void {
     if (!this.searchTerm) {
       this.filteredClasses = [...this.classes];

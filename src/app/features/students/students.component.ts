@@ -1,6 +1,6 @@
 import { Component, OnDestroy } from '@angular/core';
 import { Observable, Subject, takeUntil } from 'rxjs';
-import { Student } from 'app/core/models/student.model'; // Nueva ruta
+import { Student } from 'app/core/models/student.model';
 import { MatDialog } from '@angular/material/dialog';
 import { StudentFormComponent } from './components/student-form/student-form.component';
 import { StudentService } from './services/student.service';

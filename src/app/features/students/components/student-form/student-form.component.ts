@@ -1,7 +1,7 @@
 import { Component, Inject } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
-import { Student } from 'app/core/models/student.model'; // Nueva ruta
+import { Student } from 'app/core/models/student.model';
 
 @Component({
   selector: 'app-student-form',

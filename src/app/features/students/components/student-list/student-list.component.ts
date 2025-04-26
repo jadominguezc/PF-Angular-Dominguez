@@ -18,7 +18,7 @@ export class StudentListComponent implements OnChanges, OnDestroy {
   @Output() editStudentEvent = new EventEmitter<Student>();
   @Output() deleteStudentEvent = new EventEmitter<Student>();
   displayedColumns: string[] = ['id', 'fullNameColumn', 'email', 'rut', 'career', 'actions'];
-  studentTableDataSource = new MatTableDataSource<Student>([]); // Renombrado
+  studentTableDataSource = new MatTableDataSource<Student>([]); 
   searchControl = new FormControl('');
   filteredStudents$!: Observable<Student[]>;
   private destroy$ = new Subject<void>(); 
@@ -54,7 +54,7 @@ export class StudentListComponent implements OnChanges, OnDestroy {
     );
 
     this.filteredStudents$.subscribe(filteredStudents => {
-      this.studentTableDataSource.data = filteredStudents; // Actualizado
+      this.studentTableDataSource.data = filteredStudents; 
       console.log('DataSource actualizado con estudiantes filtrados:', filteredStudents);
     });
   }

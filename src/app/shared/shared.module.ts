@@ -30,7 +30,7 @@ import { TitleSizeDirective } from './directives/title-size.directive';
     MatButtonModule,
     MatDialogModule,
     MatIconModule,
-    RouterModule // Añadimos RouterModule para que routerLink esté disponible
+    RouterModule
   ],
   exports: [
     NavbarComponent,

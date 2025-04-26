@@ -10,7 +10,7 @@ export class NavbarComponent {
   @Output() closeSidenavEvent = new EventEmitter<void>();
 
   closeSidenav(event: Event): void {
-    event.preventDefault(); // Elimina esta línea si está presente
+    event.preventDefault();
     this.closeSidenavEvent.emit();
   }
 }
