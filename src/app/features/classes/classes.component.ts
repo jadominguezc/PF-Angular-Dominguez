@@ -1,4 +1,8 @@
 import { Component } from '@angular/core';
+import { Class } from 'app/core/models/class.model';
+import { ClassService } from './services/class.service';
+import { MatDialog } from '@angular/material/dialog';
+import { ClassFormComponent } from 'app/features/classes/class-form/class-form.component';
 
 @Component({
   selector: 'app-classes',
@@ -7,31 +11,73 @@ import { Component } from '@angular/core';
   standalone: false
 })
 export class ClassesComponent {
-  displayedColumns: string[] = ['className', 'day', 'schedule', 'professor'];
+  displayedColumns: string[] = ['className', 'schedule', 'teacher', 'actions'];
+  classes: Class[] = [];
+  filteredClasses: Class[] = [];
+  searchTerm: string = ''; // Añadimos esta propiedad
 
-  // Datos de las clases que se mostrarán en la tabla
-  classes = [
-    { className: 'Matemáticas I', day: 'Lunes', schedule: '10:00-12:00', professor: 'Prof. Mirna García' },
-    { className: 'Programación I', day: 'Miércoles', schedule: '14:00-16:00', professor: 'Ing. José López' },
-    { className: 'Física I', day: 'Martes', schedule: '08:00-10:00', professor: 'Ing. Ana Torres' },
-    { className: 'Química I', day: 'Jueves', schedule: '12:00-14:00', professor: 'Ing. Luis Pérez' },
-    { className: 'Historia I', day: 'Viernes', schedule: '16:00-18:00', professor: 'Prof. María Fernández' },
-    { className: 'Biología I', day: 'Lunes', schedule: '08:00-10:00', professor: 'Prof. Carlos Martínez' },
-    { className: 'Literatura I', day: 'Miércoles', schedule: '10:00-12:00', professor: 'Prof. Laura Gómez' },
-    { className: 'Geografía I', day: 'Jueves', schedule: '14:00-16:00', professor: 'Prof. Andrés Ramírez' },
-    { className: 'Educación Física I', day: 'Viernes', schedule: '12:00-14:00', professor: 'Prof. Sofía Morales' }
-  ];
+  constructor(private classService: ClassService, private dialog: MatDialog) {
+    this.loadClasses();
+  }
 
-  filteredClasses = [...this.classes]; 
-  searchTerm = ''; 
+  loadClasses(): void {
+    try {
+      this.classService.getClassesAsObservable().subscribe({
+        next: (classes) => {
+          this.classes = classes;
+          this.filteredClasses = [...this.classes];
+        },
+        error: (err) => {
+          console.error('Error al cargar clases:', err);
+        }
+      });
+    } catch (error) {
+      console.error('Error inesperado al cargar clases:', error);
+    }
+  }
 
-  filterClasses(): void {
-    if (!this.searchTerm) {
+  filterClasses(searchTerm: string): void {
+    if (!searchTerm) {
       this.filteredClasses = [...this.classes];
       return;
     }
     this.filteredClasses = this.classes.filter(cls =>
-      cls.className.toLowerCase().includes(this.searchTerm.toLowerCase())
+      cls.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
+  }
+
+  openForm(classToEdit?: Class): void {
+    const dialogRef = this.dialog.open(ClassFormComponent, {
+      width: '400px',
+      data: { classToEdit },
+      ariaLabel: `Formulario de ${classToEdit ? 'edición' : 'nueva'} clase`,
+      hasBackdrop: true,
+      disableClose: false,
+      autoFocus: true
+    });
+
+    dialogRef.afterClosed().subscribe(result => {
+      if (result) {
+        try {
+          if (classToEdit) {
+            this.classService.editClass(result);
+          } else {
+            this.classService.addClass(result);
+          }
+          this.loadClasses();
+        } catch (error) {
+          console.error('Error al guardar clase:', error);
+        }
+      }
+    });
+  }
+
+  deleteClass(classId: number): void {
+    try {
+      this.classService.deleteClass(classId);
+      this.loadClasses();
+    } catch (error) {
+      console.error('Error al eliminar clase:', error);
+    }
   }
 }

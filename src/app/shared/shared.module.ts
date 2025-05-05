@@ -6,7 +6,10 @@ import { MatListModule } from '@angular/material/list';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialogModule } from '@angular/material/dialog';
 import { MatIconModule } from '@angular/material/icon';
-import { RouterModule } from '@angular/router'; // Añadimos esta importación
+import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatInputModule } from '@angular/material/input';
+import { MatTableModule } from '@angular/material/table';
+import { RouterModule } from '@angular/router';
 
 import { NavbarComponent } from './components/navbar/navbar.component';
 import { ToolbarComponent } from './components/toolbar/toolbar.component';
@@ -30,6 +33,9 @@ import { TitleSizeDirective } from './directives/title-size.directive';
     MatButtonModule,
     MatDialogModule,
     MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatTableModule,
     RouterModule
   ],
   exports: [
@@ -43,7 +49,10 @@ import { TitleSizeDirective } from './directives/title-size.directive';
     MatListModule,
     MatButtonModule,
     MatDialogModule,
-    MatIconModule
+    MatIconModule,
+    MatFormFieldModule,
+    MatInputModule,
+    MatTableModule
   ]
 })
 export class SharedModule { }
