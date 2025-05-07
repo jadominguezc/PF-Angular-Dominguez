@@ -7,5 +7,9 @@
     INSTITUTO ACADÉMICO DE CHILE
     <img src="assets/images/Flag_of_Chile.png" alt="Bandera de Chile" style="width: 24px; height: auto;">
   </span>
+
   <span class="spacer"></span>
+  <div *ngIf="authService.isLoggedIn()">
+    <button mat-raised-button (click)="authService.logout()">Logout</button>
+  </div>
 </mat-toolbar>

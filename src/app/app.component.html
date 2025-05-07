@@ -1,11 +1,9 @@
-<div class="layout">
-  <app-toolbar (toggleSidenav)="toggleSidenav()"></app-toolbar>
-  <mat-sidenav-container>
-    <mat-sidenav #sidenav mode="side" [opened]="isSidenavOpen">
-      <app-navbar (closeSidenavEvent)="closeSidenav()"></app-navbar>
-    </mat-sidenav>
-    <mat-sidenav-content>
-      <router-outlet></router-outlet>
-    </mat-sidenav-content>
-  </mat-sidenav-container>
-</div>
+<app-toolbar (toggleSidenav)="toggleSidenav()"></app-toolbar>
+<mat-sidenav-container>
+  <mat-sidenav #sidenav mode="side" [opened]="false">
+    <app-navbar [sidenav]="sidenav"></app-navbar>
+  </mat-sidenav>
+  <mat-sidenav-content>
+    <router-outlet></router-outlet>
+  </mat-sidenav-content>
+</mat-sidenav-container>

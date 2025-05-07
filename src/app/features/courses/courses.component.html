@@ -1,39 +1,10 @@
-<h2 appTitleSize>Lista de Cursos</h2>
-
-<div class="search-container">
+<div class="container">
+  <h2>Lista de Cursos</h2>
   <mat-form-field appearance="fill">
-    <mat-label>Buscar por curso</mat-label>
-    <input matInput placeholder="Buscar por curso" [(ngModel)]="searchTerm" (ngModelChange)="filterCourses(searchTerm)">
+    <mat-label>Buscar por nombre</mat-label>
+    <input matInput placeholder="Buscar por nombre" (input)="filterCourses(searchInput.value)" #searchInput>
   </mat-form-field>
-  <button mat-raised-button color="primary" (click)="openForm()">+Nuevo Curso</button>
-</div>
+  <button mat-raised-button color="primary" (click)="openForm()" *ngIf="isAdmin">+ Nuevo Curso</button>
 
-<div class="table-container mat-elevation-z8">
-  <table mat-table [dataSource]="filteredCourses">
-    <ng-container matColumnDef="courseName">
-      <th mat-header-cell *matHeaderCellDef appTitleSize> Curso </th>
-      <td mat-cell *matCellDef="let course"> {{ course.name }} </td>
-    </ng-container>
-    <ng-container matColumnDef="description">
-      <th mat-header-cell *matHeaderCellDef appTitleSize> Descripción </th>
-      <td mat-cell *matCellDef="let course"> {{ course.description }} </td>
-    </ng-container>
-    <ng-container matColumnDef="credits">
-      <th mat-header-cell *matHeaderCellDef appTitleSize> Créditos </th>
-      <td mat-cell *matCellDef="let course"> {{ course.credits }} </td>
-    </ng-container>
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef appTitleSize> Acciones </th>
-      <td mat-cell *matCellDef="let course">
-        <button mat-icon-button color="primary" (click)="openForm(course)" matTooltip="Editar">
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button mat-icon-button color="warn" (click)="deleteCourse(course.id)" matTooltip="Eliminar">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </td>
-    </ng-container>
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-  </table>
+  <app-course-list [data]="filteredCourses" [isAdmin]="isAdmin" (editCourse)="editCourse($event)" (deleteCourse)="deleteCourse($event)"></app-course-list>
 </div>

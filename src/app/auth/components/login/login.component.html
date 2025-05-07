@@ -1,0 +1,34 @@
+<div class="login-container">
+    <h2 appTitleSize>Iniciar Sesión</h2>
+    <form [formGroup]="loginForm" (ngSubmit)="onLogin()" class="login-form">
+      <mat-form-field appearance="fill">
+        <mat-label>Usuario</mat-label>
+        <input matInput formControlName="username">
+        <mat-error *ngIf="username?.hasError('required') && submitted">
+          El usuario es obligatorio
+        </mat-error>
+      </mat-form-field>
+  
+      <mat-form-field appearance="fill">
+        <mat-label>Contraseña</mat-label>
+        <input matInput type="password" formControlName="password">
+        <mat-error *ngIf="password?.hasError('required') && submitted">
+          La contraseña es obligatoria
+        </mat-error>
+      </mat-form-field>
+  
+      <div *ngIf="errorMessage" class="error-message">
+        {{ errorMessage }}
+      </div>
+  
+      <div class="actions">
+        <button mat-raised-button color="primary" type="submit" [disabled]="loginForm.invalid">
+          Iniciar Sesión
+        </button>
+      </div>
+    </form>
+  
+    <div class="register-link">
+      <a (click)="openRegisterDialog()">¿Nuevo Usuario?</a>
+    </div>
+  </div>

@@ -1,0 +1,180 @@
+{
+  "students": [
+    {
+      "id": "550e8400-e29b-41d4-a716-446655440000",
+      "firstName": "Ana",
+      "lastName": "Torres",
+      "email": "ana.torres@institutoacademico.cl",
+      "rut": "12345678-9",
+      "career": "Ing. Informática"
+    },
+    {
+      "id": "f47ac10b-58cc-4372-a567-0e02b2c3d479",
+      "firstName": "Luis",
+      "lastName": "Gómez",
+      "email": "luis.gomez@institutoacademico.cl",
+      "rut": "98765432-1",
+      "career": "Ing. Industrial"
+    },
+    {
+      "id": "68924b2c-d3c8-4c34-8e31-a5d027762f75",
+      "firstName": "Jhon",
+      "lastName": "Dominguez",
+      "email": "jhon.dominguez@institutoacademico.cl",
+      "rut": "27032593-1",
+      "career": "Ing. Informática"
+    },
+    {
+      "id": "0cde7755-2614-44c4-9fff-1860c698f584",
+      "firstName": "Isa",
+      "lastName": "Zambrano",
+      "email": "isa.zambrano@institutoacademico.cl",
+      "rut": "27028491-0",
+      "career": "Ing. Informática"
+    },
+    {
+      "id": "113ed07b-864e-49f3-a071-f0c11a42ea5f",
+      "firstName": "Estefania",
+      "lastName": "Rivero",
+      "email": "estefania.rivero@institutoacademico.cl",
+      "rut": "19741321-K",
+      "career": "Ing. Civil"
+    },
+    {
+      "id": "8e0fa689-9a92-4743-b7cd-79ee865c29e1",
+      "firstName": "Carolina",
+      "lastName": "Esteves",
+      "email": "carolina.esteves@institutoacademico.cl",
+      "rut": "18962486-0",
+      "career": "Ing. Civil"
+    }
+  ],
+  "courses": [
+    {
+      "id": "6ba7b810-9dad-11d1-80b4-00c04fd430c8",
+      "name": "Ingeniería de Software",
+      "description": "Curso introductorio a ingeniería de software",
+      "credits": 4
+    },
+    {
+      "id": "7d4a3b5e-9dad-11d1-80b4-00c04fd430c8",
+      "name": "Bases de Datos",
+      "description": "Fundamentos de bases de datos relacionales",
+      "credits": 3
+    },
+    {
+      "id": "5499822e-b848-444e-8fab-27c84fcfc983",
+      "name": "SQL I",
+      "description": "Fundamentos Básicos de SQL"
+    },
+    {
+      "id": "31c5",
+      "name": "ORACLE",
+      "description": "Fundamentos Básicos de ORACLE"
+    },
+    {
+      "id": "87e2",
+      "name": "React",
+      "description": "Programación Modular con React"
+    },
+    {
+      "id": "ec29",
+      "name": "Backend I",
+      "description": "Fundamentos de NodeJS para backend básico"
+    },
+    {
+      "id": "d370",
+      "name": "Backend II",
+      "description": "Programación Backend (NodeJS & JS)"
+    }
+  ],
+  "classes": [
+    {
+      "id": "8e5f",
+      "name": "Matemáticas I",
+      "schedule": "Lunes 10:00-12:00",
+      "teacher": "Prof. Luis García"
+    },
+    {
+      "id": "0ac2",
+      "name": "Sociología",
+      "schedule": "Lunes 7:00-9:00",
+      "teacher": "Psic. Mariana Diaz"
+    },
+    {
+      "id": "b9be",
+      "name": "Matemáticas II",
+      "schedule": "Martes 10:00-12:00",
+      "teacher": "Prof. Luis García"
+    },
+    {
+      "id": "a2b6",
+      "name": "Programación I",
+      "schedule": "Lunes 12:00-14:00",
+      "teacher": "Ing. John Doe"
+    },
+    {
+      "id": "ba51",
+      "name": "Fisica I",
+      "schedule": "Viernes 9:00-11:00",
+      "teacher": "Ing. Sinay Martinez"
+    },
+    {
+      "id": "c230",
+      "name": "Historia Universal",
+      "schedule": "Viernes 9:00-11:00",
+      "teacher": "Prof. Irma Castillo"
+    },
+    {
+      "id": "6256",
+      "name": "Inglés Técnico I",
+      "schedule": "Jueves 18:00-20:00",
+      "teacher": "Prof. Andrew White"
+    },
+    {
+      "id": "3224",
+      "name": "Inglés Técnico II",
+      "schedule": "Miércoles 18:00-20:00",
+      "teacher": "Prof. Andrew White"
+    }
+  ],
+  "users": [
+    {
+      "id": "1",
+      "name": "Administrador",
+      "rut": "11111111-1",
+      "username": "admin",
+      "password": "admin123",
+      "role": "admin"
+    },
+    {
+      "id": "2",
+      "name": "Usuario Normal",
+      "rut": "22222222-2",
+      "username": "user",
+      "password": "user123",
+      "role": "user"
+    },
+    {
+      "id": "0901",
+      "name": "Isa Zambrano",
+      "rut": "27028491-4",
+      "password": "123456",
+      "role": "user"
+    },
+    {
+      "id": "c1e3",
+      "name": "Jhon Dominguez",
+      "rut": "27028493-0",
+      "password": "123456",
+      "role": "user"
+    },
+    {
+      "id": "1172",
+      "name": "Maria Diaz",
+      "rut": "22357122-1",
+      "password": "123456",
+      "role": "user"
+    }
+  ]
+}

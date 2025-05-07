@@ -1,6 +1,10 @@
-<app-student-list 
-  [students]="(students$ | async)!" 
-  (openFormEvent)="openForm()" 
-  (editStudentEvent)="editStudent($event)" 
-  (deleteStudentEvent)="deleteStudent($event)">
-</app-student-list>
+<div class="container">
+  <h2>Lista de Alumnos</h2>
+  <mat-form-field appearance="fill">
+    <mat-label>Buscar por nombre</mat-label>
+    <input matInput placeholder="Buscar por nombre" (input)="filterStudents(searchInput.value)" #searchInput>
+  </mat-form-field>
+  <button mat-raised-button color="primary" (click)="openForm()">+ Nuevo Alumno</button>
+
+  <app-student-list [data]="filteredStudents" [isAdmin]="isAdmin" (editStudent)="editStudent($event)" (deleteStudent)="deleteStudent($event)"></app-student-list>
+</div>

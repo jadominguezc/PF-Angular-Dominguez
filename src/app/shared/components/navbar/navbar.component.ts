@@ -1,4 +1,6 @@
-import { Component, Output, EventEmitter } from '@angular/core';
+import { Component, ViewChild, Input } from '@angular/core';
+import { AuthService } from '../../services/auth.service';
+import { MatSidenav } from '@angular/material/sidenav';
 
 @Component({
   selector: 'app-navbar',
@@ -7,10 +9,13 @@ import { Component, Output, EventEmitter } from '@angular/core';
   standalone: false
 })
 export class NavbarComponent {
-  @Output() closeSidenavEvent = new EventEmitter<void>();
+  @Input() sidenav!: MatSidenav;
 
-  closeSidenav(event: Event): void {
-    event.preventDefault();
-    this.closeSidenavEvent.emit();
+  constructor(public authService: AuthService) {}
+
+  closeSidenav(): void {
+    if (this.sidenav) {
+      this.sidenav.close();
+    }
   }
 }

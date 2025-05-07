@@ -1,4 +1,5 @@
 import { Component, EventEmitter, Output } from '@angular/core';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-toolbar',
@@ -8,8 +9,10 @@ import { Component, EventEmitter, Output } from '@angular/core';
 })
 export class ToolbarComponent {
   @Output() toggleSidenav = new EventEmitter<void>();
+  constructor(public authService: AuthService) {}
 
   onToggleSidenav(): void {
     this.toggleSidenav.emit();
+    this.authService.resetTimer();
   }
 }

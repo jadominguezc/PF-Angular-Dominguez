@@ -1,12 +1,14 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { HttpClientModule } from '@angular/common/http'; // Añadido
 import { StudentService } from 'app/features/students/services/student.service';
 import { ClassService } from 'app/features/classes/services/class.service';
 import { CourseService } from 'app/features/courses/services/course.service';
 
 @NgModule({
   imports: [
-    CommonModule
+    CommonModule,
+    HttpClientModule
   ],
   providers: [
     StudentService,

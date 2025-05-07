@@ -1,8 +1,11 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit, ViewChild, ElementRef } from '@angular/core';
+import { Observable, Subject, takeUntil } from 'rxjs';
 import { Course } from 'app/core/models/course.model';
 import { CourseService } from './services/course.service';
+import { AuthService } from 'app/shared/services/auth.service';
 import { MatDialog } from '@angular/material/dialog';
-import { CourseFormComponent } from './course-form/course-form.component'; // Ajustada ruta
+import { CourseFormComponent } from './components/course-form/course-form.component';
+import { ConfirmationDialogComponent } from 'app/shared/components/confirmation-dialog/confirmation-dialog.component';
 
 @Component({
   selector: 'app-courses',
@@ -10,74 +13,166 @@ import { CourseFormComponent } from './course-form/course-form.component'; // Aj
   styleUrls: ['./courses.component.css'],
   standalone: false
 })
-export class CoursesComponent {
-  displayedColumns: string[] = ['courseName', 'description', 'credits', 'actions'];
-  courses: Course[] = [];
+export class CoursesComponent implements OnDestroy, OnInit {
+  courses$!: Observable<Course[]>;
   filteredCourses: Course[] = [];
-  searchTerm: string = ''; // Añadido
+  private destroy$ = new Subject<void>();
+  isAdmin: boolean = false;
+  searchTerm: string = '';
 
-  constructor(private courseService: CourseService, private dialog: MatDialog) {
+  @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
+
+  constructor(
+    private courseService: CourseService,
+    private authService: AuthService,
+    private dialog: MatDialog
+  ) {
     this.loadCourses();
   }
 
+  ngOnInit(): void {
+    this.updateAdminStatus();
+  }
+
+  private updateAdminStatus(): void {
+    this.isAdmin = this.authService.getRole() === 'admin';
+    console.log('isAdmin (Courses):', this.isAdmin);
+  }
+
   loadCourses(): void {
-    try {
-      this.courseService.getCoursesAsObservable().subscribe({
-        next: (courses) => {
-          this.courses = courses;
-          this.filteredCourses = [...this.courses];
-        },
-        error: (err) => {
-          console.error('Error al cargar cursos:', err);
-        }
-      });
-    } catch (error) {
-      console.error('Error inesperado al cargar cursos:', error);
-    }
+    this.courses$ = this.courseService.getCoursesAsObservable();
+    this.courses$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(courses => {
+      this.filteredCourses = courses || [];
+      this.filterCourses(this.searchTerm);
+    });
   }
 
   filterCourses(searchTerm: string): void {
-    if (!searchTerm) {
-      this.filteredCourses = [...this.courses];
+    this.searchTerm = searchTerm;
+    if (!searchTerm.trim()) {
+      this.courses$.pipe(
+        takeUntil(this.destroy$)
+      ).subscribe(courses => {
+        this.filteredCourses = courses || [];
+      });
       return;
     }
-    this.filteredCourses = this.courses.filter(course =>
-      course.name.toLowerCase().includes(searchTerm.toLowerCase())
-    );
+    this.courses$.pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(courses => {
+      this.filteredCourses = (courses || []).filter(course =>
+        course.name.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+    });
   }
 
-  openForm(courseToEdit?: Course): void {
+  openForm(course?: Course): void {
+    if (!this.isAdmin) {
+      console.log('No tienes permisos para añadir/editar cursos.');
+      return;
+    }
     const dialogRef = this.dialog.open(CourseFormComponent, {
       width: '400px',
-      data: { courseToEdit },
-      ariaLabel: `Formulario de ${courseToEdit ? 'edición' : 'nuevo'} curso`,
+      data: { courseToEdit: course },
+      ariaLabel: 'Formulario de curso',
       hasBackdrop: true,
       disableClose: false,
       autoFocus: true
     });
 
-    dialogRef.afterClosed().subscribe(result => {
+    dialogRef.afterClosed().pipe(
+      takeUntil(this.destroy$)
+    ).subscribe(result => {
       if (result) {
-        try {
-          if (courseToEdit) {
-            this.courseService.editCourse(result);
-          } else {
-            this.courseService.addCourse(result);
-          }
-          this.loadCourses();
-        } catch (error) {
-          console.error('Error al guardar curso:', error);
-        }
+        this.saveCourse(result);
       }
     });
   }
 
-  deleteCourse(courseId: number): void {
-    try {
-      this.courseService.deleteCourse(courseId);
-      this.loadCourses();
-    } catch (error) {
-      console.error('Error al eliminar curso:', error);
+  saveCourse(courseData: Partial<Course>): void {
+    if (!this.isAdmin) return;
+
+    if (!courseData.name || !courseData.description) {
+      console.error('Nombre y descripción son requeridos');
+      return;
     }
+
+    const validatedData: Omit<Course, 'id'> = {
+      name: courseData.name,
+      description: courseData.description
+    };
+
+    if (courseData.id) {
+      const updatedCourse: Course = {
+        id: courseData.id,
+        name: courseData.name!,
+        description: courseData.description!
+      };
+      this.courseService.editCourse(updatedCourse).pipe(
+        takeUntil(this.destroy$)
+      ).subscribe({
+        next: () => {
+          this.courseService.refreshCourses();
+          this.loadCourses();
+        },
+        error: (err) => console.error('Error al editar curso:', err)
+      });
+    } else {
+      this.courseService.addCourse(validatedData).pipe(
+        takeUntil(this.destroy$)
+      ).subscribe({
+        next: () => {
+          this.courseService.refreshCourses();
+          this.loadCourses();
+        },
+        error: (err) => console.error('Error al añadir curso:', err)
+      });
+    }
+  }
+
+  editCourse(course: Course): void {
+    if (this.isAdmin) {
+      this.openForm(course);
+    } else {
+      console.log('No tienes permisos para editar cursos.');
+    }
+  }
+
+  deleteCourse(course: Course): void {
+    if (this.isAdmin) {
+      const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+        width: '400px',
+        data: { message: `¿Estás seguro de eliminar el curso ${course.name}?` },
+        ariaLabel: 'Confirmar eliminación',
+        hasBackdrop: true,
+        disableClose: false,
+        autoFocus: true
+      });
+
+      dialogRef.afterClosed().pipe(
+        takeUntil(this.destroy$)
+      ).subscribe(result => {
+        if (result) {
+          this.courseService.deleteCourse(course.id).pipe(
+            takeUntil(this.destroy$)
+          ).subscribe({
+            next: () => {
+              this.courseService.refreshCourses();
+              this.loadCourses();
+            },
+            error: (err) => console.error('Error al eliminar curso:', err)
+          });
+        }
+      });
+    } else {
+      console.log('No tienes permisos para eliminar cursos.');
+    }
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

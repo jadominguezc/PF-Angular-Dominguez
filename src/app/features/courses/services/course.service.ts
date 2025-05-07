@@ -1,44 +1,44 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { Course } from 'app/core/models/course.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class CourseService {
-  private courses: Course[] = [
-    { id: 1, name: 'Ingeniería de Software', description: 'Curso introductorio a ingeniería de software', credits: 4 },
-    { id: 2, name: 'Bases de Datos', description: 'Fundamentos de bases de datos relacionales', credits: 3 }
-  ];
+  private apiUrl = 'http://localhost:3000/courses';
+  private coursesSubject = new BehaviorSubject<Course[]>([]);
 
-  constructor() {}
+  constructor(private http: HttpClient) {
+    this.loadInitialCourses();
+  }
+
+  private loadInitialCourses(): void {
+    this.http.get<Course[]>(this.apiUrl).subscribe(courses => {
+      this.coursesSubject.next(courses);
+    });
+  }
 
   getCoursesAsObservable(): Observable<Course[]> {
-    return of(this.courses);
+    return this.coursesSubject.asObservable();
   }
 
-  private generateUniqueId(): number {
-    if (this.courses.length === 0) {
-      return 1;
-    }
-    const lastId = Math.max(...this.courses.map(course => course.id));
-    return lastId + 1;
+  addCourse(course: Omit<Course, 'id'>): Observable<Course> {
+    return this.http.post<Course>(this.apiUrl, course);
   }
 
-  addCourse(course: Omit<Course, 'id'>): Course {
-    const newId = this.generateUniqueId();
-    const newCourse: Course = { ...course, id: newId };
-    this.courses = [...this.courses, newCourse];
-    return newCourse;
+  editCourse(course: Course): Observable<Course> {
+    return this.http.put<Course>(`${this.apiUrl}/${course.id}`, course);
   }
 
-  editCourse(updatedCourse: Course): void {
-    this.courses = this.courses.map(course =>
-      course.id === updatedCourse.id ? updatedCourse : course
-    );
+  deleteCourse(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  deleteCourse(courseId: number): void {
-    this.courses = this.courses.filter(course => course.id !== courseId);
+  refreshCourses(): void {
+    this.http.get<Course[]>(this.apiUrl).subscribe(courses => {
+      this.coursesSubject.next(courses);
+    });
   }
 }

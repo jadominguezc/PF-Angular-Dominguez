@@ -1,39 +1,10 @@
-<h2 appTitleSize>Lista de Clases</h2>
-
-<div class="search-container">
+<div class="container">
+  <h2>Lista de Clases</h2>
   <mat-form-field appearance="fill">
-    <mat-label>Buscar por clase</mat-label>
-    <input matInput placeholder="Buscar por clase" [(ngModel)]="searchTerm" (ngModelChange)="filterClasses(searchTerm)">
+    <mat-label>Buscar por nombre</mat-label>
+    <input matInput placeholder="Buscar por nombre" (input)="filterClasses(searchInput.value)" #searchInput>
   </mat-form-field>
-  <button mat-raised-button color="primary" (click)="openForm()">+Nueva Clase</button>
-</div>
+  <button mat-raised-button color="primary" (click)="openForm()" *ngIf="isAdmin">+ Nueva Clase</button>
 
-<div class="table-container mat-elevation-z8">
-  <table mat-table [dataSource]="filteredClasses">
-    <ng-container matColumnDef="className">
-      <th mat-header-cell *matHeaderCellDef appTitleSize> Clase </th>
-      <td mat-cell *matCellDef="let class"> {{ class.name }} </td>
-    </ng-container>
-    <ng-container matColumnDef="schedule">
-      <th mat-header-cell *matHeaderCellDef appTitleSize> Horario </th>
-      <td mat-cell *matCellDef="let class"> {{ class.schedule }} </td>
-    </ng-container>
-    <ng-container matColumnDef="teacher">
-      <th mat-header-cell *matHeaderCellDef appTitleSize> Profesor </th>
-      <td mat-cell *matCellDef="let class"> {{ class.teacher }} </td>
-    </ng-container>
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef appTitleSize> Acciones </th>
-      <td mat-cell *matCellDef="let class">
-        <button mat-icon-button color="primary" (click)="openForm(class)" matTooltip="Editar">
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button mat-icon-button color="warn" (click)="deleteClass(class.id)" matTooltip="Eliminar">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </td>
-    </ng-container>
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
-  </table>
+  <app-class-list [data]="filteredClasses" [isAdmin]="isAdmin" (editClass)="editClass($event)" (deleteClass)="deleteClass($event)"></app-class-list>
 </div>

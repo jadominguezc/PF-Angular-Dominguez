@@ -1,6 +1,6 @@
-import { Component, Inject } from '@angular/core';
+import { Component, Inject, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog';
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog';
 import { Student } from 'app/core/models/student.model';
 
 @Component({
@@ -9,65 +9,44 @@ import { Student } from 'app/core/models/student.model';
   styleUrls: ['./student-form.component.css'],
   standalone: false
 })
-export class StudentFormComponent {
+export class StudentFormComponent implements OnInit {
   studentForm: FormGroup;
-  careers = ['Ing. Industrial', 'Ing. Electrónica', 'Ing. Informática'];
+  careers: string[] = ['Ing. Industrial' , 'Ing. Electrónica' , 'Ing. Informática','Lic. en Ciencias' , 'Ing. Química' , 'Ing. en Computación'];
   submitted = false;
-  isEditing = false;
+  isEditing: boolean;
 
   constructor(
     private fb: FormBuilder,
     public dialogRef: MatDialogRef<StudentFormComponent>,
     @Inject(MAT_DIALOG_DATA) public data: { studentToEdit?: Student }
   ) {
+    this.isEditing = !!data.studentToEdit;
     this.studentForm = this.fb.group({
       firstName: ['', [Validators.required, Validators.minLength(3)]],
       lastName: ['', [Validators.required, Validators.minLength(3)]],
       email: ['', [Validators.required, Validators.email]],
-      rut: ['', [Validators.required, Validators.pattern(/^\d{7,8}-[\dK]$/)]],
+      rut: ['', [Validators.required, Validators.pattern(/^\d{7,8}-[\dkK]$/)]],
       career: ['', Validators.required]
     });
+  }
 
-    if (this.data.studentToEdit) {
-      this.isEditing = true;
+  ngOnInit(): void {
+    if (this.isEditing && this.data.studentToEdit) {
       this.studentForm.patchValue(this.data.studentToEdit);
     }
-
-    this.studentForm.get('rut')?.valueChanges.subscribe(value => {
-      if (value) {
-        const cleanedRut = value.replace(/\./g, '');
-        if (cleanedRut !== value) {
-          this.studentForm.get('rut')?.setValue(cleanedRut, { emitEvent: false });
-        }
-      }
-    });
   }
 
   onSubmit(): void {
     this.submitted = true;
-    console.log('onSubmit ejecutado');
-    console.log('Valores del formulario:', this.studentForm.value);
-    console.log('Formulario válido:', this.studentForm.valid);
-
     if (this.studentForm.valid) {
-      const studentData = this.studentForm.value;
-      const newStudent: Student | Omit<Student, 'id'> = this.isEditing
-        ? { ...this.data.studentToEdit, ...studentData }
-        : studentData;
-      console.log('Enviando estudiante:', newStudent);
-      this.dialogRef.close(newStudent);
-    } else {
-      console.log('Formulario inválido');
-      Object.values(this.studentForm.controls).forEach(control => {
-        control.markAsTouched();
-      });
-      console.log('Errores del formulario:', this.studentForm.errors);
-      console.log('Controles del formulario:', this.studentForm.controls);
+      const studentData = this.isEditing
+        ? { ...this.data.studentToEdit, ...this.studentForm.value }
+        : this.studentForm.value;
+      this.dialogRef.close(studentData);
     }
   }
 
   onCancel(): void {
-    console.log('onCancel ejecutado');
     this.dialogRef.close();
   }
 }

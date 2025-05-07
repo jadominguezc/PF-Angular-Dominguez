@@ -1,6 +1,5 @@
 export interface Course {
-    id: number;
-    name: string;
-    description: string;
-    credits: number;
-  }
+  id: string;
+  name: string;
+  description: string;
+}

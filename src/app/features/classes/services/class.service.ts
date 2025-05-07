@@ -1,44 +1,44 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { Class } from 'app/core/models/class.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class ClassService {
-  private classes: Class[] = [
-    { id: 1, name: 'Matemáticas I', courseId: 1, schedule: 'Lunes 10:00-12:00', teacher: 'Prof. García' },
-    { id: 2, name: 'Programación I', courseId: 2, schedule: 'Miércoles 14:00-16:00', teacher: 'Prof. López' }
-  ];
+  private apiUrl = 'http://localhost:3000/classes';
+  private classesSubject = new BehaviorSubject<Class[]>([]);
 
-  constructor() {}
+  constructor(private http: HttpClient) {
+    this.loadInitialClasses();
+  }
+
+  private loadInitialClasses(): void {
+    this.http.get<Class[]>(this.apiUrl).subscribe(classes => {
+      this.classesSubject.next(classes);
+    });
+  }
 
   getClassesAsObservable(): Observable<Class[]> {
-    return of(this.classes);
+    return this.classesSubject.asObservable();
   }
 
-  private generateUniqueId(): number {
-    if (this.classes.length === 0) {
-      return 1;
-    }
-    const lastId = Math.max(...this.classes.map(cls => cls.id));
-    return lastId + 1;
+  addClass(classData: Omit<Class, 'id'>): Observable<Class> {
+    return this.http.post<Class>(this.apiUrl, classData);
   }
 
-  addClass(cls: Omit<Class, 'id'>): Class {
-    const newId = this.generateUniqueId();
-    const newClass: Class = { ...cls, id: newId };
-    this.classes = [...this.classes, newClass];
-    return newClass;
+  editClass(classData: Class): Observable<Class> {
+    return this.http.put<Class>(`${this.apiUrl}/${classData.id}`, classData);
   }
 
-  editClass(updatedClass: Class): void {
-    this.classes = this.classes.map(cls =>
-      cls.id === updatedClass.id ? updatedClass : cls
-    );
+  deleteClass(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  deleteClass(classId: number): void {
-    this.classes = this.classes.filter(cls => cls.id !== classId);
+  refreshClasses(): void {
+    this.http.get<Class[]>(this.apiUrl).subscribe(classes => {
+      this.classesSubject.next(classes);
+    });
   }
 }

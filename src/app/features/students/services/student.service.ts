@@ -1,49 +1,46 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
+import { HttpClient } from '@angular/common/http';
+import { Observable, BehaviorSubject } from 'rxjs';
 import { Student } from 'app/core/models/student.model';
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable({
   providedIn: 'root'
 })
 export class StudentService {
-  private students: Student[] = [
-    { id: 1, firstName: 'Ana', lastName: 'Torres', email: 'ana.torres@institutoacademico.cl', rut: '12345678-9', career: 'Ing. Informática' },
-    { id: 2, firstName: 'Luis', lastName: 'Gómez', email: 'luis.gomez@institutoacademico.cl', rut: '98765432-1', career: 'Ing. Industrial' }
-  ];
+  private apiUrl = 'http://localhost:3000/students';
+  private studentsSubject = new BehaviorSubject<Student[]>([]);
 
-  constructor() {}
+  constructor(private http: HttpClient) {
+    this.loadInitialStudents();
+  }
 
-  getStudentsAsPromise(): Promise<Student[]> {
-    return Promise.resolve(this.students);
+  private loadInitialStudents(): void {
+    this.http.get<Student[]>(this.apiUrl).subscribe(students => {
+      this.studentsSubject.next(students);
+    });
   }
 
   getStudentsAsObservable(): Observable<Student[]> {
-    return of(this.students);
+    return this.studentsSubject.asObservable();
   }
 
-  
-  private generateUniqueId(): number {
-    if (this.students.length === 0) {
-      return 1;
-    }
-    const lastId = Math.max(...this.students.map(student => student.id));
-    return lastId + 1;
+  addStudent(student: Omit<Student, 'id'>): Observable<Student> {
+    const newStudent: Student = { ...student, id: uuidv4() };
+    return this.http.post<Student>(this.apiUrl, newStudent);
   }
 
-  addStudent(student: Omit<Student, 'id'>): Student {
-    const newId = this.generateUniqueId();
-    const newStudent: Student = { ...student, id: newId };
-    this.students = [...this.students, newStudent];
-    return newStudent;
+  editStudent(student: Student): Observable<Student> {
+    return this.http.put<Student>(`${this.apiUrl}/${student.id}`, student);
   }
 
-  editStudent(updatedStudent: Student): void {
-    this.students = this.students.map(student =>
-      student.id === updatedStudent.id ? updatedStudent : student
-    );
+  deleteStudent(id: string): Observable<void> {
+    return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
 
-  deleteStudent(studentId: number): void {
-    this.students = this.students.filter(student => student.id !== studentId);
+  refreshStudents(): void {
+    this.http.get<Student[]>(this.apiUrl).subscribe(students => {
+      this.studentsSubject.next(students);
+    });
   }
 }
