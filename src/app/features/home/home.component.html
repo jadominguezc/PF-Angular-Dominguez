@@ -1,3 +1,8 @@
 <h2 appTitleSize>Bienvenido a la Gestión de Estudiantes</h2>
 <p>Utiliza el menú lateral para navegar entre las secciones de estudiantes, clases y cursos.</p>
-<img src="assets/images/Estudiantes-chile.jpeg" alt="Imagen de bienvenida">
+<div class="carousel">
+  <div class="slide" *ngFor="let image of images; let i = index" [@slideAnimation] 
+       [ngStyle]="{'z-index': images.length - i, 'transform': 'translateX(' + (100 * (i - currentIndex)) + '%)'}">
+    <img [src]="image" alt="Carousel Image {{i + 1}}" style="width: 100%; height: auto;">
+  </div>
+</div>
