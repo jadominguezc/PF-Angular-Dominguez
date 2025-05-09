@@ -40,7 +40,7 @@ describe('UserService', () => {
     const req = httpMock.expectOne('http://localhost:3000/users');
     expect(req.request.method).toBe('POST');
     expect(req.request.body).toEqual(newUser);
-    req.flush({ ...newUser, id: '1' }); // Simula la respuesta del servidor
+    req.flush({ ...newUser, id: '1' }); 
   });
 
   it('should get users by username via GET', () => {
@@ -63,6 +63,6 @@ describe('UserService', () => {
 
     const req = httpMock.expectOne(`http://localhost:3000/users?username=${username}`);
     expect(req.request.method).toBe('GET');
-    req.flush(mockUsers); // Simula la respuesta del servidor
+    req.flush(mockUsers); 
   });
 });
