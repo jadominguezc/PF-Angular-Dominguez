@@ -17,52 +17,82 @@ describe('UserService', () => {
   });
 
   afterEach(() => {
-    httpMock.verify(); // Verifica que no queden solicitudes HTTP pendientes
+    httpMock.verify(); 
   });
 
   it('should be created', () => {
     expect(service).toBeTruthy();
   });
 
-  it('should register a new user via POST', () => {
+  it('should add a new user', () => {
     const newUser: User = {
-      name: 'Juan Pérez',
-      rut: '12345678-0',
-      username: '12345678',
+      id: '1', 
+      name: 'John Doe',
+      rut: '12345678-9',
+      username: 'johndoe',
       password: 'password123',
       role: 'user'
     };
 
-    service.registerUser(newUser).subscribe(user => {
-      expect(user).toEqual({ ...newUser, id: '1' });
+    service.addUser(newUser).subscribe(user => {
+      expect(user).toEqual(newUser);
     });
 
     const req = httpMock.expectOne('http://localhost:3000/users');
     expect(req.request.method).toBe('POST');
-    expect(req.request.body).toEqual(newUser);
-    req.flush({ ...newUser, id: '1' }); 
+    req.flush(newUser);
   });
 
-  it('should get users by username via GET', () => {
-    const username = '12345678';
+  it('should get users by username', () => {
+    const username = 'johndoe';
     const mockUsers: User[] = [
       {
         id: '1',
-        name: 'Juan Pérez',
-        rut: '12345678-0',
-        username: '12345678',
+        name: 'John Doe',
+        rut: '12345678-9',
+        username: 'johndoe',
         password: 'password123',
         role: 'user'
       }
     ];
 
     service.getUserByUsername(username).subscribe(users => {
-      expect(users.length).toBe(1);
       expect(users).toEqual(mockUsers);
     });
 
     const req = httpMock.expectOne(`http://localhost:3000/users?username=${username}`);
     expect(req.request.method).toBe('GET');
-    req.flush(mockUsers); 
+    req.flush(mockUsers);
+  });
+
+  it('should update a user', () => {
+    const updatedUser: User = {
+      id: '1',
+      name: 'John Updated',
+      rut: '12345678-9',
+      username: 'johndoe',
+      password: 'newpassword',
+      role: 'admin'
+    };
+
+    service.editUser(updatedUser).subscribe(user => {
+      expect(user).toEqual(updatedUser);
+    });
+
+    const req = httpMock.expectOne(`http://localhost:3000/users/${updatedUser.id}`);
+    expect(req.request.method).toBe('PUT');
+    req.flush(updatedUser);
+  });
+
+  it('should delete a user', () => {
+    const userId = '1';
+
+    service.deleteUser(userId).subscribe(response => {
+      expect(response).toBeNull();
+    });
+
+    const req = httpMock.expectOne(`http://localhost:3000/users/${userId}`);
+    expect(req.request.method).toBe('DELETE');
+    req.flush(null);
   });
 });

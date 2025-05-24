@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable } from 'rxjs';
 import { Class } from 'app/core/models/class.model';
 
 @Injectable({
@@ -8,20 +8,11 @@ import { Class } from 'app/core/models/class.model';
 })
 export class ClassService {
   private apiUrl = 'http://localhost:3000/classes';
-  private classesSubject = new BehaviorSubject<Class[]>([]);
 
-  constructor(private http: HttpClient) {
-    this.loadInitialClasses();
-  }
+  constructor(private http: HttpClient) {}
 
-  private loadInitialClasses(): void {
-    this.http.get<Class[]>(this.apiUrl).subscribe(classes => {
-      this.classesSubject.next(classes);
-    });
-  }
-
-  getClassesAsObservable(): Observable<Class[]> {
-    return this.classesSubject.asObservable();
+  getClasses(): Observable<Class[]> {
+    return this.http.get<Class[]>(this.apiUrl);
   }
 
   addClass(classData: Omit<Class, 'id'>): Observable<Class> {
@@ -34,11 +25,5 @@ export class ClassService {
 
   deleteClass(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
-  }
-
-  refreshClasses(): void {
-    this.http.get<Class[]>(this.apiUrl).subscribe(classes => {
-      this.classesSubject.next(classes);
-    });
   }
 }

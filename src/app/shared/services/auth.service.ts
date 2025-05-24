@@ -1,44 +1,36 @@
 import { Injectable } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable } from 'rxjs';
 import { tap } from 'rxjs/operators';
 import { UserService } from 'app/core/services/user.service';
 import { User } from 'app/core/models/user.model';
+import { Store } from '@ngrx/store';
+import { login, logout } from 'app/core/store/app.actions';
+import { RootState } from 'app/core/store/root-state';
+import { selectUser } from 'app/core/store/app.selectors';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
-  private isAuthenticated = new BehaviorSubject<boolean>(false);
-  private userRole: string | null = null;
-  private currentUser: User | null = null;
   private inactivityTimeout: any;
 
   constructor(
     private router: Router,
     private http: HttpClient,
-    private userService: UserService
+    private userService: UserService,
+    private store: Store<RootState>
   ) {
     this.checkInitialAuth();
   }
 
   private checkInitialAuth(): void {
-    const token = localStorage.getItem('authToken');
-    const role = localStorage.getItem('userRole');
     const userData = localStorage.getItem('userData');
-    if (token && role && userData) {
-      this.isAuthenticated.next(true);
-      this.userRole = role;
-      this.currentUser = JSON.parse(userData);
+    if (userData) {
+      const user: User = JSON.parse(userData);
+      this.store.dispatch(login({ user }));
       this.startInactivityTimer();
-    } else {
-      this.isAuthenticated.next(false);
-      this.userRole = null;
-      this.currentUser = null;
-      localStorage.removeItem('authToken');
-      localStorage.removeItem('userRole');
-      localStorage.removeItem('userData');
     }
   }
 
@@ -46,12 +38,9 @@ export class AuthService {
     return this.userService.getUserByUsername(username).pipe(
       tap(users => {
         if (users.length > 0 && users[0].password === password) {
-          this.currentUser = users[0];
-          this.isAuthenticated.next(true);
-          this.userRole = users[0].role;
-          localStorage.setItem('authToken', 'dummy-token');
-          localStorage.setItem('userRole', this.userRole);
-          localStorage.setItem('userData', JSON.stringify(this.currentUser));
+          const user = users[0];
+          this.store.dispatch(login({ user }));
+          localStorage.setItem('userData', JSON.stringify(user));
           this.startInactivityTimer();
         } else {
           throw new Error('Credenciales inválidas');
@@ -61,22 +50,10 @@ export class AuthService {
   }
 
   logout(): void {
-    this.isAuthenticated.next(false);
-    this.userRole = null;
-    this.currentUser = null;
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('userRole');
+    this.store.dispatch(logout());
     localStorage.removeItem('userData');
     clearTimeout(this.inactivityTimeout);
-    this.router.navigate(['/']);
-  }
-
-  isLoggedIn(): boolean {
-    return this.isAuthenticated.value;
-  }
-
-  getRole(): string | null {
-    return this.userRole;
+    this.router.navigate(['/login']);
   }
 
   startInactivityTimer(): void {
@@ -88,10 +65,12 @@ export class AuthService {
   resetTimer(): void {
     clearTimeout(this.inactivityTimeout);
     this.inactivityTimeout = setTimeout(() => {
-      if (this.isAuthenticated.value) {
-        this.logout();
-        alert('Sesión cerrada por inactividad.');
-      }
-    }, 5 * 60 * 1000); // Con 5 minutos de inactividad en la sesión se hará un logout y se mostrará un mensaje de alerta
+      this.store.select(selectUser).subscribe(user => {
+        if (user) {
+          this.logout();
+          alert('Sesión cerrada por inactividad.');
+        }
+      });
+    }, 5 * 60 * 1000);
   }
 }

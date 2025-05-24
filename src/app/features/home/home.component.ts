@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core';
-import { trigger, transition, style, animate, state } from '@angular/animations';
+import { trigger, transition, style, animate } from '@angular/animations';
 import { interval, Subscription } from 'rxjs';
 
 @Component({
@@ -8,10 +8,14 @@ import { interval, Subscription } from 'rxjs';
   styleUrls: ['./home.component.css'],
   standalone: false,
   animations: [
-    trigger('slideAnimation', [
-      transition('* => *', [
-        style({ transform: 'translateX(100%)' }),
-        animate('0.5s ease-in-out', style({ transform: 'translateX(-100%)' }))
+    trigger('fadeAnimation', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('500ms ease-in-out', style({ opacity: 1 }))
+      ]),
+      transition(':leave', [
+        style({ opacity: 1 }),
+        animate('500ms ease-in-out', style({ opacity: 0 }))
       ])
     ])
   ]
@@ -29,14 +33,22 @@ export class HomeComponent implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     console.log('HomeComponent inicializado');
-    this.subscription = interval(2000).subscribe(() => {
-      this.currentIndex = (this.currentIndex + 1) % this.images.length;
-    });
+    this.startCarousel();
   }
 
   ngOnDestroy(): void {
     if (this.subscription) {
       this.subscription.unsubscribe();
     }
+  }
+
+  startCarousel(): void {
+    this.subscription = interval(3000).subscribe(() => {
+      this.currentIndex = (this.currentIndex + 1) % this.images.length;
+    });
+  }
+
+  goToSlide(index: number): void {
+    this.currentIndex = index;
   }
 }

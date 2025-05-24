@@ -4,12 +4,12 @@
   </button>
   <span class="spacer"></span>
   <span appTitleSize style="display: flex; align-items: center; gap: 5px;">
-    INSTITUTO ACADÉMICO DE CHILE
+    {{ (title$ | async) }} - INSTITUTO ACADÉMICO DE CHILE
     <img src="assets/images/Flag_of_Chile.png" alt="Bandera de Chile" style="width: 24px; height: auto;">
   </span>
-
   <span class="spacer"></span>
-  <div *ngIf="authService.isLoggedIn()">
-    <button mat-raised-button (click)="authService.logout()">Logout</button>
+  <div *ngIf="isLoggedIn$ | async">
+    <span style="margin-right: 10px;">({{ (user$ | async)?.name }})</span>
+    <button mat-raised-button (click)="onLogout()">Logout</button>
   </div>
 </mat-toolbar>

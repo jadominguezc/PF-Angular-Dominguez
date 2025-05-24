@@ -12,6 +12,8 @@ import { CoursesComponent } from './courses.component';
 import { CourseFormComponent } from './components/course-form/course-form.component';
 import { CourseListComponent } from './components/course-list/course-list.component';
 import { SharedModule } from 'app/shared/shared.module';
+import { StoreModule } from '@ngrx/store';
+import { courseReducer } from './store/course.reducer';
 
 @NgModule({
   declarations: [CoursesComponent, CourseFormComponent, CourseListComponent],
@@ -25,7 +27,8 @@ import { SharedModule } from 'app/shared/shared.module';
     MatDialogModule,
     ReactiveFormsModule,
     CoursesRoutingModule,
-    SharedModule
+    SharedModule,
+    StoreModule.forFeature('courses', courseReducer)
   ]
 })
 export class CoursesModule { }

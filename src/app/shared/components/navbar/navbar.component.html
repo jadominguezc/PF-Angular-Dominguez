@@ -3,7 +3,12 @@
   <a mat-list-item routerLink="/students" (click)="closeSidenav()">Alumnos</a>
   <a mat-list-item routerLink="/classes" (click)="closeSidenav()">Clases</a>
   <a mat-list-item routerLink="/courses" (click)="closeSidenav()">Cursos</a>
+  <ng-container *ngIf="userRole$ | async as userRole">
+    <a mat-list-item *ngIf="userRole === 'admin'" routerLink="/users" (click)="closeSidenav()">Usuarios</a>
+  </ng-container>
   <mat-divider></mat-divider>
-  <a mat-list-item *ngIf="!authService.isLoggedIn()" routerLink="/login" (click)="closeSidenav()">Login</a>
-  <a mat-list-item *ngIf="authService.isLoggedIn()" (click)="authService.logout(); closeSidenav()">Logout</a>
+  <ng-container *ngIf="isLoggedIn$ | async as isLoggedIn">
+    <a mat-list-item *ngIf="!isLoggedIn" routerLink="/login" (click)="closeSidenav()">Login</a>
+    <a mat-list-item *ngIf="isLoggedIn" (click)="onLogout(); closeSidenav()">Logout</a>
+  </ng-container>
 </mat-nav-list>

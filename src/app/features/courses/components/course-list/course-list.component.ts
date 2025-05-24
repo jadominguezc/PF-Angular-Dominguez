@@ -12,6 +12,7 @@ export class CourseListComponent {
   @Input() isAdmin: boolean = false;
   @Output() editCourse = new EventEmitter<Course>();
   @Output() deleteCourse = new EventEmitter<Course>();
+  @Output() viewCourse = new EventEmitter<Course>();
   displayedColumns: string[] = ['name', 'description', 'actions'];
 
   onEdit(course: Course): void {
@@ -20,5 +21,9 @@ export class CourseListComponent {
 
   onDelete(course: Course): void {
     this.deleteCourse.emit(course);
+  }
+
+  onView(course: Course): void {
+    this.viewCourse.emit(course);
   }
 }

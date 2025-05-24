@@ -4,5 +4,5 @@ export interface Student {
   lastName: string;
   email: string;
   rut: string;
-  career: 'Ing. Industrial' | 'Ing. Electrónica' | 'Ing. Informática'|'Lic. en Ciencias' | 'Ing. Química' | 'Ing. en Computación';
+  career: 'Ing. Industrial' | 'Ing. Electrónica' | 'Ing. Informática' | 'Lic. en Ciencias' | 'Ing. Química' | 'Ing. en Computación';
 }

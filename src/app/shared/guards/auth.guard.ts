@@ -1,20 +1,38 @@
 import { Injectable } from '@angular/core';
-import { CanActivate, Router } from '@angular/router';
-import { AuthService } from '../services/auth.service';
+import {
+  CanActivate,
+  Router,
+  ActivatedRouteSnapshot,
+  RouterStateSnapshot,
+} from '@angular/router';
+import { Store } from '@ngrx/store';
+import { RootState } from 'app/core/store/root-state';
+import { selectIsLoggedIn } from 'app/core/store/app.selectors';
+import { Observable } from 'rxjs';
+import { map, take, tap } from 'rxjs/operators';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AuthGuard implements CanActivate {
-  constructor(private authService: AuthService, private router: Router) {}
+  constructor(private store: Store<RootState>, private router: Router) {}
 
-  canActivate(): boolean {
-    if (this.authService.isLoggedIn()) {
-      const role = this.authService.getRole();
-      return true; 
-    } else {
-      this.router.navigate(['/login']);
-      return false;
-    }
+  canActivate(
+    route: ActivatedRouteSnapshot,
+    state: RouterStateSnapshot
+  ): Observable<boolean> {
+    return this.store.select(selectIsLoggedIn).pipe(
+      take(1),
+      tap((isLoggedIn) => {
+        if (!isLoggedIn && state.url !== '/login') {
+          this.router.navigate(['/login'], {
+            queryParams: { returnUrl: state.url },
+          });
+        }
+      }),
+      map((isLoggedIn) => {
+        return isLoggedIn || state.url === '/login';
+      })
+    );
   }
 }

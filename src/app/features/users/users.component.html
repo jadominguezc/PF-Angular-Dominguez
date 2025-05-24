@@ -1,0 +1,10 @@
+<div class="container">
+    <h2>Lista de Usuarios</h2>
+    <mat-form-field appearance="fill">
+      <mat-label>Buscar por nombre</mat-label>
+      <input matInput placeholder="Buscar por nombre" (input)="filterUsers(searchInput.value)" #searchInput>
+    </mat-form-field>
+    <button mat-raised-button color="primary" (click)="openForm()" *ngIf="isAdmin">+ Nuevo Usuario</button>
+  
+    <app-user-list [data]="filteredUsers" [isAdmin]="isAdmin" (editUser)="editUser($event)" (deleteUser)="deleteUser($event)" (viewUser)="viewUser($event)"></app-user-list>
+  </div>

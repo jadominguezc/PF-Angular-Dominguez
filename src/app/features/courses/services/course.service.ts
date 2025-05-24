@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, BehaviorSubject } from 'rxjs';
+import { Observable } from 'rxjs';
 import { Course } from 'app/core/models/course.model';
 
 @Injectable({
@@ -8,20 +8,11 @@ import { Course } from 'app/core/models/course.model';
 })
 export class CourseService {
   private apiUrl = 'http://localhost:3000/courses';
-  private coursesSubject = new BehaviorSubject<Course[]>([]);
 
-  constructor(private http: HttpClient) {
-    this.loadInitialCourses();
-  }
+  constructor(private http: HttpClient) {}
 
-  private loadInitialCourses(): void {
-    this.http.get<Course[]>(this.apiUrl).subscribe(courses => {
-      this.coursesSubject.next(courses);
-    });
-  }
-
-  getCoursesAsObservable(): Observable<Course[]> {
-    return this.coursesSubject.asObservable();
+  getCourses(): Observable<Course[]> {
+    return this.http.get<Course[]>(this.apiUrl);
   }
 
   addCourse(course: Omit<Course, 'id'>): Observable<Course> {
@@ -34,11 +25,5 @@ export class CourseService {
 
   deleteCourse(id: string): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
-  }
-
-  refreshCourses(): void {
-    this.http.get<Course[]>(this.apiUrl).subscribe(courses => {
-      this.coursesSubject.next(courses);
-    });
   }
 }

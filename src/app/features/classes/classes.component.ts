@@ -1,11 +1,15 @@
-import { Component, OnDestroy, OnInit, ViewChild, ElementRef } from '@angular/core';
-import { Observable, Subject, takeUntil } from 'rxjs';
+import { Component, OnDestroy, ViewChild, ElementRef, OnInit } from '@angular/core';
+import { Observable, Subject } from 'rxjs';
 import { Class } from 'app/core/models/class.model';
-import { ClassService } from './services/class.service';
-import { AuthService } from 'app/shared/services/auth.service';
 import { MatDialog } from '@angular/material/dialog';
 import { ClassFormComponent } from './components/class-form/class-form.component';
 import { ConfirmationDialogComponent } from 'app/shared/components/confirmation-dialog/confirmation-dialog.component';
+import { Store } from '@ngrx/store';
+import { RootState } from 'app/core/store/root-state';
+import { selectAllClasses } from './store/class.selectors';
+import { loadClasses, addClass, editClass, deleteClass } from './store/class.actions';
+import { selectUserRole } from 'app/core/store/app.selectors';
+import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
   selector: 'app-classes',
@@ -14,131 +18,75 @@ import { ConfirmationDialogComponent } from 'app/shared/components/confirmation-
   standalone: false
 })
 export class ClassesComponent implements OnDestroy, OnInit {
-  classes$!: Observable<Class[]>;
+  classes$: Observable<Class[]>;
   filteredClasses: Class[] = [];
   private destroy$ = new Subject<void>();
   isAdmin: boolean = false;
-  searchTerm: string = '';
+  displayedColumns: string[] = ['name', 'schedule', 'teacher', 'actions'];
+  dataSource = new MatTableDataSource<Class>([]);
 
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
 
   constructor(
-    private classService: ClassService,
-    private authService: AuthService,
-    private dialog: MatDialog
+    private dialog: MatDialog,
+    private store: Store<RootState>
   ) {
+    this.classes$ = this.store.select(selectAllClasses);
     this.loadClasses();
   }
 
   ngOnInit(): void {
-    this.updateAdminStatus();
-  }
-
-  private updateAdminStatus(): void {
-    this.isAdmin = this.authService.getRole() === 'admin';
-    console.log('isAdmin (Classes):', this.isAdmin);
+    this.store.select(selectUserRole).subscribe(role => {
+      this.isAdmin = role === 'admin';
+    });
+    this.classes$.subscribe(classes => {
+      this.filteredClasses = classes || [];
+      this.dataSource.data = this.filteredClasses;
+    });
   }
 
   loadClasses(): void {
-    this.classes$ = this.classService.getClassesAsObservable();
-    this.classes$.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(classes => {
-      this.filteredClasses = classes || [];
-      this.filterClasses(this.searchTerm);
-    });
+    this.store.dispatch(loadClasses());
   }
 
   filterClasses(searchTerm: string): void {
-    this.searchTerm = searchTerm;
     if (!searchTerm.trim()) {
-      this.classes$.pipe(
-        takeUntil(this.destroy$)
-      ).subscribe(classes => {
+      this.classes$.subscribe(classes => {
         this.filteredClasses = classes || [];
+        this.dataSource.data = this.filteredClasses;
       });
       return;
     }
-    this.classes$.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(classes => {
+    this.classes$.subscribe(classes => {
       this.filteredClasses = (classes || []).filter(cls =>
         cls.name.toLowerCase().includes(searchTerm.toLowerCase())
       );
+      this.dataSource.data = this.filteredClasses;
     });
   }
 
-  openForm(cls?: Class): void {
-    if (!this.isAdmin) {
-      console.log('No tienes permisos para añadir/editar clases.');
-      return;
-    }
-    const dialogRef = this.dialog.open(ClassFormComponent, {
-      width: '400px',
-      data: { classToEdit: cls },
-      ariaLabel: 'Formulario de clase',
-      hasBackdrop: true,
-      disableClose: false,
-      autoFocus: true
-    });
-
-    dialogRef.afterClosed().pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(result => {
-      if (result) {
-        this.saveClass(result);
-      }
-    });
-  }
-
-  saveClass(classData: Partial<Class>): void {
-    if (!this.isAdmin) return;
-
-    if (!classData.name || !classData.schedule || !classData.teacher) {
-      console.error('Nombre, horario y profesor son requeridos');
-      return;
-    }
-
-    const validatedData: Omit<Class, 'id'> = {
-      name: classData.name,
-      schedule: classData.schedule,
-      teacher: classData.teacher
-    };
-
-    if (classData.id) {
-      const updatedClass: Class = {
-        id: classData.id,
-        name: classData.name!,
-        schedule: classData.schedule!,
-        teacher: classData.teacher!
-      };
-      this.classService.editClass(updatedClass).pipe(
-        takeUntil(this.destroy$)
-      ).subscribe({
-        next: () => {
-          this.classService.refreshClasses();
-          this.loadClasses();
-        },
-        error: (err) => console.error('Error al editar clase:', err)
-      });
-    } else {
-      this.classService.addClass(validatedData).pipe(
-        takeUntil(this.destroy$)
-      ).subscribe({
-        next: () => {
-          this.classService.refreshClasses();
-          this.loadClasses();
-        },
-        error: (err) => console.error('Error al añadir clase:', err)
-      });
+  addClass(classData: Omit<Class, 'id'>): void {
+    if (this.isAdmin) {
+      this.store.dispatch(addClass({ classData }));
     }
   }
 
   editClass(cls: Class): void {
     if (this.isAdmin) {
-      this.openForm(cls);
-    } else {
-      console.log('No tienes permisos para editar clases.');
+      const dialogRef = this.dialog.open(ClassFormComponent, {
+        width: '400px',
+        data: { classToEdit: cls },
+        ariaLabel: 'Formulario de edición de clase',
+        hasBackdrop: true,
+        disableClose: false,
+        autoFocus: true
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          this.store.dispatch(editClass({ classData: result }));
+        }
+      });
     }
   }
 
@@ -153,23 +101,51 @@ export class ClassesComponent implements OnDestroy, OnInit {
         autoFocus: true
       });
 
-      dialogRef.afterClosed().pipe(
-        takeUntil(this.destroy$)
-      ).subscribe(result => {
+      dialogRef.afterClosed().subscribe(result => {
         if (result) {
-          this.classService.deleteClass(cls.id).pipe(
-            takeUntil(this.destroy$)
-          ).subscribe({
-            next: () => {
-              this.classService.refreshClasses();
-              this.loadClasses();
-            },
-            error: (err) => console.error('Error al eliminar clase:', err)
-          });
+          this.store.dispatch(deleteClass({ id: cls.id }));
         }
       });
-    } else {
-      console.log('No tienes permisos para eliminar clases.');
+    }
+  }
+
+  viewClass(cls: Class): void {
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '400px',
+      data: {
+        message: `
+          <strong>Detalles de la Clase:</strong><br>
+          Nombre: ${cls.name}<br>
+          Horario: ${cls.schedule}<br>
+          Profesor: ${cls.teacher}
+        `,
+        isDetails: true
+      },
+      ariaLabel: 'Detalles de la clase',
+      hasBackdrop: true,
+      disableClose: false,
+      autoFocus: true
+    });
+
+    dialogRef.afterClosed().subscribe();
+  }
+
+  openForm(): void {
+    if (this.isAdmin) {
+      const dialogRef = this.dialog.open(ClassFormComponent, {
+        width: '400px',
+        data: {},
+        ariaLabel: 'Formulario de nueva clase',
+        hasBackdrop: true,
+        disableClose: false,
+        autoFocus: true
+      });
+
+      dialogRef.afterClosed().subscribe(result => {
+        if (result) {
+          this.addClass(result);
+        }
+      });
     }
   }
 

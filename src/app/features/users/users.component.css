@@ -1,0 +1,13 @@
+.container {
+    padding: 20px;
+}
+
+h2 {
+    margin-bottom: 20px;
+}
+
+mat-form-field {
+    width: 100%;
+    max-width: 400px;
+    margin-bottom: 20px;
+}

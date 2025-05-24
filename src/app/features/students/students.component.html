@@ -1,10 +1,15 @@
 <div class="container">
-  <h2>Lista de Alumnos</h2>
+  <h2 appTitleSize>Gestión de Estudiantes</h2>
+  <button mat-raised-button color="primary" (click)="openForm()" *ngIf="isAdmin">Agregar Estudiante</button>
   <mat-form-field appearance="fill">
-    <mat-label>Buscar por nombre</mat-label>
-    <input matInput placeholder="Buscar por nombre" (input)="filterStudents(searchInput.value)" #searchInput>
+    <mat-label>Buscar estudiante</mat-label>
+    <input matInput placeholder="Nombre o RUT" #searchInput (input)="filterStudents(searchInput.value)">
   </mat-form-field>
-  <button mat-raised-button color="primary" (click)="openForm()">+ Nuevo Alumno</button>
-
-  <app-student-list [data]="filteredStudents" [isAdmin]="isAdmin" (editStudent)="editStudent($event)" (deleteStudent)="deleteStudent($event)"></app-student-list>
+  <app-student-list
+    [data]="filteredStudents"
+    [isAdmin]="isAdmin"
+    (editStudent)="editStudent($event)"
+    (deleteStudent)="deleteStudent($event)"
+    (viewStudent)="viewStudent($event)">
+  </app-student-list>
 </div>

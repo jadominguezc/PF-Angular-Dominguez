@@ -13,6 +13,8 @@ import { ClassesComponent } from './classes.component';
 import { ClassFormComponent } from './components/class-form/class-form.component';
 import { ClassesRoutingModule } from './classes-routing.module';
 import { ClassListComponent } from './components/class-list/class-list.component';
+import { StoreModule } from '@ngrx/store';
+import { classReducer } from './store/class.reducer';
 
 @NgModule({
   declarations: [
@@ -31,7 +33,8 @@ import { ClassListComponent } from './components/class-list/class-list.component
     FormsModule,
     ReactiveFormsModule,
     SharedModule,
-    ClassesRoutingModule
+    ClassesRoutingModule,
+    StoreModule.forFeature('classes', classReducer),
   ],
   exports: [
     ClassesComponent

@@ -1,26 +1,29 @@
 <table mat-table [dataSource]="data" class="mat-elevation-z8">
-    <ng-container matColumnDef="name">
-      <th mat-header-cell *matHeaderCellDef appTitleSize>Nombre</th>
-      <td mat-cell *matCellDef="let course">{{ course.name }}</td>
-    </ng-container>
-  
-    <ng-container matColumnDef="description">
-      <th mat-header-cell *matHeaderCellDef appTitleSize>Descripción</th>
-      <td mat-cell *matCellDef="let course">{{ course.description }}</td>
-    </ng-container>
-  
-    <ng-container matColumnDef="actions">
-      <th mat-header-cell *matHeaderCellDef appTitleSize>Modificaciones</th>
-      <td mat-cell *matCellDef="let course">
-        <button mat-icon-button color="primary" (click)="onEdit(course)" *ngIf="isAdmin">
-          <mat-icon>edit</mat-icon>
-        </button>
-        <button mat-icon-button color="warn" (click)="onDelete(course)" *ngIf="isAdmin">
-          <mat-icon>delete</mat-icon>
-        </button>
-      </td>
-    </ng-container>
-  
-    <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
-    <tr mat-row *matRowDef="let row; columns: displayedColumns"></tr>
-  </table>
+  <ng-container matColumnDef="name">
+    <th mat-header-cell *matHeaderCellDef> Nombre </th>
+    <td mat-cell *matCellDef="let element"> {{element.name}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="description">
+    <th mat-header-cell *matHeaderCellDef> Descripción </th>
+    <td mat-cell *matCellDef="let element"> {{element.description}} </td>
+  </ng-container>
+
+  <ng-container matColumnDef="actions">
+    <th mat-header-cell *matHeaderCellDef> Acciones </th>
+    <td mat-cell *matCellDef="let element">
+      <button mat-icon-button *ngIf="isAdmin" (click)="onEdit(element)" aria-label="Editar curso">
+        <mat-icon>edit</mat-icon>
+      </button>
+      <button mat-icon-button *ngIf="isAdmin" (click)="onDelete(element)" aria-label="Eliminar curso">
+        <mat-icon>delete</mat-icon>
+      </button>
+      <button mat-icon-button (click)="onView(element)" aria-label="Ver detalles">
+        <mat-icon>visibility</mat-icon>
+      </button>
+    </td>
+  </ng-container>
+
+  <tr mat-header-row *matHeaderRowDef="displayedColumns"></tr>
+  <tr mat-row *matRowDef="let row; columns: displayedColumns;"></tr>
+</table>

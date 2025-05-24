@@ -1,11 +1,15 @@
 import { Component, OnDestroy, ViewChild, ElementRef, OnInit } from '@angular/core';
-import { Observable, Subject, takeUntil } from 'rxjs';
+import { Observable, Subject } from 'rxjs';
 import { Student } from 'app/core/models/student.model';
 import { MatDialog } from '@angular/material/dialog';
 import { StudentFormComponent } from './components/student-form/student-form.component';
 import { ConfirmationDialogComponent } from 'app/shared/components/confirmation-dialog/confirmation-dialog.component';
-import { StudentService } from './services/student.service';
-import { AuthService } from 'app/shared/services/auth.service';
+import { Store } from '@ngrx/store';
+import { RootState } from 'app/core/store/root-state';
+import { selectAllStudents } from './store/student.selectors';
+import { loadStudents, addStudent, editStudent, deleteStudent } from './store/student.actions';
+import { selectUserRole } from 'app/core/store/app.selectors';
+import { MatTableDataSource } from '@angular/material/table';
 
 @Component({
   selector: 'app-students',
@@ -14,73 +18,78 @@ import { AuthService } from 'app/shared/services/auth.service';
   standalone: false
 })
 export class StudentsComponent implements OnDestroy, OnInit {
-  students$!: Observable<Student[]>;
+  students$: Observable<Student[]>;
   filteredStudents: Student[] = [];
   private destroy$ = new Subject<void>();
   isAdmin: boolean = false;
   displayedColumns: string[] = ['fullName', 'email', 'rut', 'career', 'actions'];
+  dataSource = new MatTableDataSource<Student>([]);
 
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>;
 
   constructor(
     private dialog: MatDialog,
-    private studentService: StudentService,
-    private authService: AuthService
+    private store: Store<RootState>
   ) {
+    this.students$ = this.store.select(selectAllStudents);
     this.loadStudents();
   }
 
   ngOnInit(): void {
-    this.updateAdminStatus();
-  }
+    this.store.select(selectUserRole).subscribe(role => {
+      this.isAdmin = role === 'admin';
+    });
 
-  private updateAdminStatus(): void {
-    this.isAdmin = this.authService.getRole() === 'admin';
-    console.log('isAdmin:', this.isAdmin);
+    this.students$.subscribe({
+      next: (students) => {
+        this.filteredStudents = students || [];
+        this.dataSource.data = this.filteredStudents;
+      },
+      error: (err) => {
+        console.error('Error loading students:', err);
+        this.filteredStudents = [];
+        this.dataSource.data = this.filteredStudents;
+      }
+    });
   }
 
   loadStudents(): void {
-    this.students$ = this.studentService.getStudentsAsObservable();
-    this.students$.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(students => {
-      this.filteredStudents = students || [];
-    });
+    this.store.dispatch(loadStudents());
   }
 
   filterStudents(searchTerm: string): void {
     if (!searchTerm.trim()) {
-      this.students$.pipe(
-        takeUntil(this.destroy$)
-      ).subscribe(students => {
-        this.filteredStudents = students || [];
+      this.students$.subscribe({
+        next: (students) => {
+          this.filteredStudents = students || [];
+          this.dataSource.data = this.filteredStudents;
+        },
+        error: (err) => {
+          console.error('Error filtering students:', err);
+          this.filteredStudents = [];
+          this.dataSource.data = this.filteredStudents;
+        }
       });
       return;
     }
-    this.students$.pipe(
-      takeUntil(this.destroy$)
-    ).subscribe(students => {
-      this.filteredStudents = (students || []).filter(student =>
-        `${student.firstName} ${student.lastName}`
-          .toLowerCase()
-          .includes(searchTerm.toLowerCase())
-      );
+    this.students$.subscribe({
+      next: (students) => {
+        this.filteredStudents = (students || []).filter(student =>
+          `${student.firstName} ${student.lastName}`.toLowerCase().includes(searchTerm.toLowerCase())
+        );
+        this.dataSource.data = this.filteredStudents;
+      },
+      error: (err) => {
+        console.error('Error filtering students:', err);
+        this.filteredStudents = [];
+        this.dataSource.data = this.filteredStudents;
+      }
     });
   }
 
-  addStudent(student: Omit<Student, 'id'>): void {
+  addStudent(studentData: Omit<Student, 'id'>): void {
     if (this.isAdmin) {
-      this.studentService.addStudent(student).pipe(
-        takeUntil(this.destroy$)
-      ).subscribe({
-        next: () => {
-          this.studentService.refreshStudents();
-          this.loadStudents();
-        },
-        error: (err) => console.error('Error al añadir estudiante:', err)
-      });
-    } else {
-      console.log('No tienes permisos para añadir estudiantes.');
+      this.store.dispatch(addStudent({ student: studentData }));
     }
   }
 
@@ -95,23 +104,11 @@ export class StudentsComponent implements OnDestroy, OnInit {
         autoFocus: true
       });
 
-      dialogRef.afterClosed().pipe(
-        takeUntil(this.destroy$)
-      ).subscribe(result => {
+      dialogRef.afterClosed().subscribe(result => {
         if (result) {
-          this.studentService.editStudent(result).pipe(
-            takeUntil(this.destroy$)
-          ).subscribe({
-            next: () => {
-              this.studentService.refreshStudents();
-              this.loadStudents();
-            },
-            error: (err) => console.error('Error al editar estudiante:', err)
-          });
+          this.store.dispatch(editStudent({ student: result }));
         }
       });
-    } else {
-      console.log('No tienes permisos para editar estudiantes.');
     }
   }
 
@@ -126,25 +123,34 @@ export class StudentsComponent implements OnDestroy, OnInit {
         autoFocus: true
       });
 
-      dialogRef.afterClosed().pipe(
-        takeUntil(this.destroy$)
-      ).subscribe(result => {
-        console.log('Resultado del diálogo:', result);
+      dialogRef.afterClosed().subscribe(result => {
         if (result) {
-          this.studentService.deleteStudent(student.id).pipe(
-            takeUntil(this.destroy$)
-          ).subscribe({
-            next: () => {
-              this.studentService.refreshStudents();
-              this.loadStudents();
-            },
-            error: (err) => console.error('Error al eliminar estudiante:', err)
-          });
+          this.store.dispatch(deleteStudent({ id: student.id }));
         }
       });
-    } else {
-      console.log('No tienes permisos para eliminar estudiantes.');
     }
+  }
+
+  viewStudent(student: Student): void {
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      width: '400px',
+      data: {
+        message: `
+          <strong>Detalles del Alumno:</strong><br>
+          Nombre: ${student.firstName} ${student.lastName}<br>
+          Email: ${student.email}<br>
+          RUT: ${student.rut}<br>
+          Carrera: ${student.career}
+        `,
+        isDetails: true
+      },
+      ariaLabel: 'Detalles del alumno',
+      hasBackdrop: true,
+      disableClose: false,
+      autoFocus: true
+    });
+
+    dialogRef.afterClosed().subscribe();
   }
 
   openForm(): void {
@@ -158,15 +164,11 @@ export class StudentsComponent implements OnDestroy, OnInit {
         autoFocus: true
       });
 
-      dialogRef.afterClosed().pipe(
-        takeUntil(this.destroy$)
-      ).subscribe(result => {
+      dialogRef.afterClosed().subscribe(result => {
         if (result) {
           this.addStudent(result);
         }
       });
-    } else {
-      console.log('No tienes permisos para añadir estudiantes.');
     }
   }
 

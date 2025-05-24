@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router'; 
+import { RouterModule } from '@angular/router';
 import { MatTableModule } from '@angular/material/table';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { MatSortModule } from '@angular/material/sort';
@@ -25,11 +25,11 @@ import { FullNamePipe } from './pipes/full-name.pipe';
     ConfirmationDialogComponent,
     NavbarComponent,
     ToolbarComponent,
-    FullNamePipe
+    FullNamePipe,
   ],
   imports: [
     CommonModule,
-    RouterModule, 
+    RouterModule,
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
@@ -41,11 +41,11 @@ import { FullNamePipe } from './pipes/full-name.pipe';
     MatDialogModule,
     MatListModule,
     MatDividerModule,
-    MatToolbarModule
+    MatToolbarModule,
   ],
   exports: [
     CommonModule,
-    RouterModule, 
+    RouterModule,
     MatTableModule,
     MatPaginatorModule,
     MatSortModule,
@@ -62,7 +62,7 @@ import { FullNamePipe } from './pipes/full-name.pipe';
     ConfirmationDialogComponent,
     NavbarComponent,
     ToolbarComponent,
-    FullNamePipe
-  ]
+    FullNamePipe,
+  ],
 })
-export class SharedModule { }
+export class SharedModule {}
